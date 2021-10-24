@@ -36,7 +36,7 @@ The requirements describe a series of **screens**. Screens can be popups/modals,
 
 Please note: This assignment, unlike assignment 2, has a lot of functionality available whilst not logged in. Logging in just adds extra functionality. If you're unsure what we mean by this behaviour, you can play around with the Airbnb website for comparison.
 
-### 2.1. Feature Set 1. Admin Auth (12% for solo, 10% for pairs)
+### 2.1. Feature Set 1. Admin Auth (10% for solo, 8% for pairs)
 
 This focuses on the basic user interface to register and log in to the site. Login and registration are required to gain access to making bookings as a guest, leave reviews and to manage your own listings as a host.
 
@@ -62,7 +62,7 @@ This focuses on the basic user interface to register and log in to the site. Log
    * A button exists that will take the user to the screen to view their hosted listings.
    * A button exists that will take the user to the screen to view all listings.
 
-### 2.2. Feature Set 2. Creating & Editing & Publishing a Hosted Listing (24% for solo, 20% for pairs)
+### 2.2. Feature Set 2. Creating & Editing & Publishing a Hosted Listing (16% for solo, 14% for pairs)
 
 For logged in users, they are able to create their own listings (as a host) that will become visible to all other users who have the option of booking it.
 
@@ -110,7 +110,7 @@ For logged in users, they are able to create their own listings (as a host) that
  * For a listing to "go live" means that the listing becomes visible to other AirBrB users on the screen described in ``2.4``.
  * On the hosted listings screen described in ``2.2.1``, add the ability to make an individual listing "go live". This action should be coupled with two form fields being required to be collected (both dates) that describe the date ranges that a listing is available for booking.
 
-### 2.3. Feature Set 3. Landing Page: Listings and Search (24% for solo, 20% for pairs)
+### 2.3. Feature Set 3. Landing Page: Listings and Search (16% for solo, 14% for pairs)
 
 When the app loads, regardless of whether a user is logged in or not, they can access the landing screen. The landing screen displays a number of listings that you as a guest may be able to book (on another screen). We recommend you create some listings (`2.2`) with one user account, and then create a second user account to build/test `2.3` so that you can view their listing as a potential booking option.
 
@@ -139,7 +139,7 @@ When the app loads, regardless of whether a user is logged in or not, they can a
 	* Review ratings
 * The search section must have an associated search button that will action the search to reload the results given the new filters.
 
-### 2.4. Feature Set 4. Viewing and Booking Listings (12% for solo, 10% for pairs)
+### 2.4. Feature Set 4. Viewing and Booking Listings (9% for solo, 8% for pairs)
 
 #### 2.4.1. View a Selected Listing
  * A unique route must exist for this screen that is parameterised on the Listing ID
@@ -166,7 +166,7 @@ When the app loads, regardless of whether a user is logged in or not, they can a
 * A logged in user should be able to leave a review for listings they've booked that will immidiately appear on the listing screen after it's been posted by the user. The review will consist of a score (number) and a comment (text).
 * Please note: Normally you'd prohibit reviews until after a booking visit is complete, but in this case for simplicity we allow reviews to be left as soon as a booking is made.
 
-### 2.5. Feature Set 5. Removing a Listing, Managing Booking Requests (12% for solo, 10% for pairs)
+### 2.5. Feature Set 5. Removing a Listing, Managing Booking Requests (9% for solo, 8% for pairs)
 
 #### 2.5.1. Removing a live listing
  * On the hosted listings screen described in `2.2.1`, add the ability to remove a live listing from being visible to other users. 
@@ -181,7 +181,7 @@ When the app loads, regardless of whether a user is logged in or not, they can a
 	* How many days this year has the listing been booked for
 	* How much profit has this listing made the owner this year
 
-### 2.6. Feature Set 6. Advanced Features (0% for solo, 10% for pairs)
+### 2.6. Feature Set 6. Advanced Features (0% for solo, 8% for pairs)
 
 #### 2.6.1 Advanced Listing Rating Viewing
 * On hover of star rating a tool tip appears which displays the break down of how many people rated the booking (both in percentage terms and absolute terms) within each star category. (e.g. see Amazon product rating for reference)
