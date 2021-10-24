@@ -34,6 +34,8 @@ Features need to be implemented (described below) in order for your ReactJS app 
 
 The requirements describe a series of **screens**. Screens can be popups/modals, or entire pages. The use of that language is so that you can choose how you want it to be displayed. A screen is essentially a certain state of your web-based application.
 
+Please note: This assignment, unlike assignment 2, has a lot of functionality available whilst not logged in. Logging in just adds extra functionality. If you're unsure what we mean by this behaviour, you can play around with the Airbnb website for comparison.
+
 ### 2.1. Feature Set 1. Admin Auth (12% for solo, 10% for pairs)
 
 This focuses on the basic user interface to register and log in to the site. Login and registration are required to gain access to making bookings as a guest, leave reviews and to manage your own listings as a host.
@@ -125,8 +127,9 @@ When the app loads, regardless of whether a user is logged in or not, they can a
   * All remaining listings should be displayed in alphabetical order of title.
 
 #### 2.3.2. Search Filters
-* On this listings screen, a search section must exist for the user to enter search text in
-  * The search section will search title and city location properties of listings, and only display those that match.
+* On this listings screen, a search section must exist for the user to filter via search parameters
+* The search section will consists of an input text box:
+  * The input text box will take in a search string, and will search title and city location properties of listings, and only display those that match.
   * You are expected to do this matching on frontend (after loading all the results from the backend).
   * You are only required to do case insensitive substring matching (of each word in the search field), nothing more complicated. 
 * Other form inputs should also exist that allow the user to search by:
@@ -158,13 +161,12 @@ When the app loads, regardless of whether a user is logged in or not, they can a
 #### 2.4.2. Making a booking and checking its status
  * On the screen described in `2.4.1`, a **logged in** user should be able to make a booking for a given listing they are viewing between the dates they are after. The user enters two dates, and assume the dates describe a valid booking, a button allows for the confirmation of the booking.
  * Once a booking is made, the user receives some kind of temporary confirmation on screen.
- * Having made a booking, they should be able to see the status of their booking on the particular listing screen described in `2.4.1`
 
 #### 2.4.3 Leaving a listing review
 * A logged in user should be able to leave a review for listings they've booked that will immidiately appear on the listing screen after it's been posted by the user. The review will consist of a score (number) and a comment (text).
 * Please note: Normally you'd prohibit reviews until after a booking visit is complete, but in this case for simplicity we allow reviews to be left as soon as a booking is made.
 
-### 2.5. Feature Set 3. Removing a Listing, Managing Booking Requests (12% for solo, 10% for pairs)
+### 2.5. Feature Set 5. Removing a Listing, Managing Booking Requests (12% for solo, 10% for pairs)
 
 #### 2.5.1. Removing a live listing
  * On the hosted listings screen described in `2.2.1`, add the ability to remove a live listing from being visible to other users. 
@@ -179,7 +181,7 @@ When the app loads, regardless of whether a user is logged in or not, they can a
 	* How many days this year has the listing been booked for
 	* How much profit has this listing made the owner this year
 
-### 2.6. Advanced Features (0% for solo, 10% for pairs)
+### 2.6. Feature Set 6. Advanced Features (0% for solo, 10% for pairs)
 
 #### 2.6.1 Advanced Listing Rating Viewing
 * On hover of star rating a tool tip appears which displays the break down of how many people rated the booking (both in percentage terms and absolute terms) within each star category. (e.g. see Amazon product rating for reference)
