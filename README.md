@@ -12,7 +12,7 @@
 
 ## 0. Change Log
 
-Coming soon
+02/11: Updated Swagger docs for `/listings` and `listings/{listingid}`
 
 ## 1. Background & Motivation
 

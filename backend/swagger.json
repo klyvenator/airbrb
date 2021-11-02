@@ -569,18 +569,8 @@
     "/listings": {
       "get": {
         "summary": "Get a list of the meta-data for all AirBrB listings",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
         "tags": [
           "Listing Management"
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/Authorization"
-          }
         ],
         "responses": {
           "200": {
@@ -627,18 +617,10 @@
     "/listings/{listingid}": {
       "get": {
         "summary": "Collect all of the data pertaining to a particular AirBrB listing",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
         "tags": [
           "Listing Management"
         ],
         "parameters": [
-          {
-            "$ref": "#/components/parameters/Authorization"
-          },
           {
             "$ref": "#/components/parameters/ListingsIdQuery"
           }
