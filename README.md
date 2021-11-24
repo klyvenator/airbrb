@@ -12,7 +12,9 @@
 
 ## 0. Change Log
 
-02/11: Updated Swagger docs for `/listings` and `listings/{listingid}`
+
+- 02/11: Updated Swagger docs for `/listings` and `listings/{listingid}`
+- 04/11: Added clarifications to `2.2.4`, `2.3.2`, `2.4.1` and `2.4.3`
 
 ## 1. Background & Motivation
 
@@ -108,7 +110,15 @@ For logged in users, they are able to create their own listings (as a host) that
 
 #### 2.2.4. Publishing a listing
  * For a listing to "go live" means that the listing becomes visible to other AirBrB users on the screen described in ``2.4``.
- * On the hosted listings screen described in ``2.2.1``, add the ability to make an individual listing "go live". This action should be coupled with two form fields being required to be collected (both dates) that describe the date ranges that a listing is available for booking.
+ * On the hosted listings screen described in ``2.2.1``, add the ability to make an individual listing "go live".
+ 	- A listing must have at least one availability date range (e.g. a listing could be available between 1st and 3rd of November and then between the 5th and 6th of November)
+	- The way you define the availability ranges is entirely up to you. For example, you could use the following schemas:
+```javascript
+//Example 1:
+availability: [{ start: date1, end: date2 }, { start: date3, end: date4 }, ...];
+//Example 2:
+availability: [date1, date2, date3, date4, ...];
+```
 
 ### 2.3. Feature Set 3. Landing Page: Listings and Search (16% for solo, 14% for pairs)
 
@@ -136,7 +146,9 @@ When the app loads, regardless of whether a user is logged in or not, they can a
 	* Number of bedrooms (a minimum and maximum number of bedrooms, expressed either via text fields or a slider)
 	* Date range (two date fields)
 	* Price (a minimum and maximum price, expressed either via text fields or a slider)
-	* Review ratings
+	* Review ratings:
+		- Sort results from highest to lowest review rating **or** from lowest to highest review rating depending
+		- If there is more than one listing with the same rating, their order does not matter
 * The search section must have an associated search button that will action the search to reload the results given the new filters.
 
 ### 2.4. Feature Set 4. Viewing and Booking Listings (9% for solo, 8% for pairs)
@@ -148,7 +160,9 @@ When the app loads, regardless of whether a user is logged in or not, they can a
 	- Title
 	- Address (displayed as a string, e.g. 1/101 Kensington Street, Kensington, NSW)
 	- Amenities
-	- Price **per stay**
+	- Price:
+		- If the user used a date range for search in `2.3.2` - display **price per stay**
+		- If the user did not use a date range for search in `2.3.2` - display **price per night**
 	- All images of the property including the listing thumbnail (they don't have to be visible all at once)
 	- Type
 	- Reviews
@@ -163,8 +177,8 @@ When the app loads, regardless of whether a user is logged in or not, they can a
  * Once a booking is made, the user receives some kind of temporary confirmation on screen.
 
 #### 2.4.3 Leaving a listing review
-* A logged in user should be able to leave a review for listings they've booked that will immidiately appear on the listing screen after it's been posted by the user. The review will consist of a score (number) and a comment (text).
-* Please note: Normally you'd prohibit reviews until after a booking visit is complete, but in this case for simplicity we allow reviews to be left as soon as a booking is made.
+* A logged in user should be able to leave a review for listings they've booked that will immidiately appear on the listing screen after it's been posted by the user. The review will consist of a score (number) and a comment (text). You can leave an unlimited number of reviews per listing.
+* Please note: Normally you'd prohibit reviews until after a booking visit is complete, but in this case for simplicity we allow reviews to be left as soon as a booking's status becomes `accepted`.  
 
 ### 2.5. Feature Set 5. Removing a Listing, Managing Booking Requests (9% for solo, 8% for pairs)
 
@@ -264,8 +278,6 @@ The backend server exists in your individual repository. After you clone this re
 To run the backend server, simply run `yarn start` in the `backend` directory. This will start the backend.
 
 To view the API interface for the backend you can navigate to the base URL of the backend (e.g. `http://localhost:5005`). This will list all of the HTTP routes that you can interact with.
-
-We have provided you with a very basic starting database containing two users and one public channel with messages. You can look in `backend/database.json` to see the contents.
 
 Your backend is persistent in terms of data storage. That means the data will remain even after your express server process stops running. If you want to reset the data in the backend to the original starting state, you can run `yarn reset` in the backend directory. If you want to make a copy of the backend data (e.g. for a backup) then simply copy `database.json`. If you want to start with an empty database, you can run `yarn clear` in the backend directory.
 
