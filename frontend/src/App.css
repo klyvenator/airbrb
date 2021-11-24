@@ -1,10 +1,25 @@
-.App {
-  text-align: center;
+
+h1 {
+  margin:0;
+  font-size: 15pt;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+a {
+  color: #CBF7ED;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #ffffff;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+}
+
+#root {
+  height: 100%
 }
 
 @media (prefers-reduced-motion: no-preference) {
