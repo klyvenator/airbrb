@@ -1,36 +1,19 @@
 import React from 'react';
 import { ReviewCard, TextArea } from './components';
 import PropTypes from 'prop-types';
-import { myFetch } from './functions';
+import { myFetch, avgReview } from './functions';
 import { Rating, Typography, Button } from '@mui/material';
 
-const ReviewSection = ({ listingId, booking }) => {
-  const [reviewed, setReviewed] = React.useState(false);
+const ReviewSection = ({ reviews, setReviews, booking, listingId }) => {
   const [rating, setRating] = React.useState(1);
   const [comment, setComment] = React.useState();
-  const [reviews, setReviews] = React.useState([]);
   const [totalRating, setTotalRating] = React.useState(0);
   const user = window.localStorage.getItem('email');
 
   React.useEffect(async () => {
-    const resp = await myFetch('/listings/' + listingId, 'GET');
-    if (resp.error === undefined) {
-      setReviews(resp.listing.reviews);
-      if (user) {
-        let avgRating = 0;
-        for (const rev of resp.listing.reviews) {
-          avgRating += rev.rating;
-          if (rev.owner === user) {
-            setReviewed(true);
-          }
-        }
-        avgRating /= resp.listing.reviews.length;
-        setTotalRating(avgRating);
-      }
-    } else {
-      console.log(resp.error);
-    }
-  }, [reviewed]);
+    const avgRating = avgReview(reviews);
+    setTotalRating(avgRating);
+  }, [reviews]);
 
   const submitReview = async () => {
     const body = {
@@ -38,7 +21,9 @@ const ReviewSection = ({ listingId, booking }) => {
     }
     const resp = await myFetch('/listings/' + listingId + '/review/' + booking.id, 'PUT', body);
     if (resp.error === undefined) {
-      setReviewed(true);
+      const copy = [...reviews];
+      copy.push({ rating: rating, comment: comment, owner: user });
+      setReviews(copy);
     } else {
       console.log(resp.error);
     }
@@ -53,7 +38,7 @@ const ReviewSection = ({ listingId, booking }) => {
           <p/>
 
           {/* Review form */}
-          { booking && !reviewed && booking.status === 'accepted'
+          { booking && booking.status === 'accepted'
             ? <div>
               <Typography variant='h6'>New Review: </Typography>
               <Rating
@@ -78,8 +63,10 @@ const ReviewSection = ({ listingId, booking }) => {
 }
 
 ReviewSection.propTypes = {
-  listingId: PropTypes.string,
-  booking: PropTypes.object
+  reviews: PropTypes.array,
+  setReviews: PropTypes.function,
+  booking: PropTypes.object,
+  listingId: PropTypes.string
 }
 
 export default ReviewSection;

@@ -31,3 +31,20 @@ export const daysBetween = (startDate, endDate) => {
   days = days / 1000 / 60 / 60 / 24;
   return (days)
 }
+
+export const avgReview = (reviews) => {
+  let avg = 0;
+  for (const rev of reviews) {
+    avg += rev.rating;
+  }
+  return (avg / reviews.length);
+}
+
+export const isNumber = (string) => {
+  const regex = /^[0-9]+$/;
+  if (regex.test(string)) {
+    return true;
+  } else {
+    return false;
+  }
+}

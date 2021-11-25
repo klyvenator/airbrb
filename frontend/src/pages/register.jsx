@@ -1,67 +1,51 @@
 import React from 'react';
-import { BACKEND_PORT } from '../config';
-import { TopBanner, Form, Container, NavBar, Content } from './components';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import {
-  useNavigate
-} from 'react-router-dom';
+import { TopBanner, Form, Container, NavBar, Content, MyAlert } from './components';
+import { TextField, Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { myFetch } from './functions';
 
 const RegisterPage = () => {
-  const [matchingPasswords, setMatchingPasswords] = React.useState(false);
+  const [pass1, setPass1] = React.useState();
+  const [pass2, setPass2] = React.useState();
+  const [email, setEmail] = React.useState();
+  const [name, setName] = React.useState();
+  const [alert, setAlert] = React.useState();
   const navigate = useNavigate();
 
-  let pass1, pass2;
-  const checkDifference = (event) => {
-    if (event.target.id === 'pass1') {
-      pass1 = event.target.value;
-    } else {
-      pass2 = event.target.value;
-    }
-
+  React.useEffect(() => {
     if (pass1 !== pass2) {
-      setMatchingPasswords(false);
-    } else if (pass1 === '') {
-      setMatchingPasswords(false);
+      setAlert({ title: 'Warning', severity: 'warning', text: 'Passwords do not match' });
     } else {
-      setMatchingPasswords(true);
+      setAlert();
     }
-  }
-  const submitRegister = (event) => {
-    event.preventDefault();
+  }, [pass1, pass2]);
 
-    const header = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: document.getElementById('email').value, password: document.getElementById('pass1').value, name: document.getElementById('name').value })
+  const submitRegister = async (event) => {
+    event.preventDefault();
+    const resp = await myFetch('/user/auth/register', 'POST', { email: email, password: pass1, name: name })
+    if (resp.error === undefined) {
+      window.localStorage.setItem('token', resp.token);
+      window.localStorage.setItem('email', email);
+      setAlert({ title: 'Success', severity: 'success', text: 'You have successfully signed up... redirecting' });
+      setTimeout(() => { navigate('/') }, 1500);
+    } else {
+      setAlert({ title: 'Error', severity: 'error', text: resp.error })
     }
-    fetch('http://localhost:' + BACKEND_PORT + '/user/auth/register', header)
-      .then(response => {
-        if (response.ok !== true) {
-          alert('Error');
-        } else {
-          response.json()
-            .then(data => {
-              window.localStorage.setItem('token', data.token);
-              window.localStorage.setItem('email', document.getElementById('email').value);
-              navigate('/');
-            })
-        }
-      })
   }
 
   return (
     <Container>
       <TopBanner text="Register"/>
-      <Content>
+      <Content direction='column'>
+      { alert && <MyAlert title={ alert.title } severity={ alert.severity } text={ alert.text }></MyAlert> }
         <Form>
-          <TextField id="name" label="Name" variant="standard"/>
-          <TextField id="email" label="Email" variant="standard" />
-          <TextField id="pass1" label="Password" variant="standard" type='password' onChange={checkDifference}/>
-          <TextField id="pass2" label="Password" variant="standard" type='password' onChange={checkDifference}/>
-          { matchingPasswords
-            ? (<div><Button onClick={submitRegister} variant="filled">Submit</Button></div>)
-            : (<div><label>Error: Passwords do not match or empty</label><br/><Button disabled variant="filled" onClick={submitRegister}>Submit</Button></div>)
+          <TextField label="Name" variant="standard" onChange={e => { setName(e.target.value); setAlert(); }} />
+          <TextField label="Email" variant="standard" onChange={e => { setEmail(e.target.value); setAlert(); }} />
+          <TextField id="pass1" label="Password" variant="standard" type='password' onChange={ e => { setPass1(e.target.value); setAlert(); } }/>
+          <TextField id="pass2" label="Password" variant="standard" type='password' onChange={e => { setPass2(e.target.value); setAlert(); } }/>
+          { !alert
+            ? <Button onClick={submitRegister} variant="filled">Submit</Button>
+            : <Button disabled variant="filled" onClick={submitRegister}>Submit</Button>
             }
         </Form>
       </Content>

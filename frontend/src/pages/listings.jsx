@@ -1,63 +1,75 @@
-import { TextField } from '@mui/material';
 import React from 'react';
-import { TopBanner, NavBar, Container, Content, ListingCard } from './components';
+import { TopBanner, NavBar, Container, Content, ListingCard, MyAlert } from './components';
 import { myFetch } from './functions';
+import { Button, Typography } from '@mui/material';
+import FilterSortSection from './filtersection';
 
 const ListingsPage = () => {
-  const [sortedListings, setListings] = React.useState([]);
-  const [copyListing, setCopyListing] = React.useState([]);
+  const [listings, setListings] = React.useState([]);
+  const [alert, setAlert] = React.useState();
+  const [openSearch, setOpenSearch] = React.useState(false);
+  const [bookedListings, setBookedListings] = React.useState();
+  const email = window.localStorage.getItem('email');
 
   React.useEffect(async () => {
-    const response = await myFetch('/listings', 'GET');
     const tempList = [];
-    for (const item of response.listings) {
+    const tempBookedList = [];
+
+    const respListings = await myFetch('/listings', 'GET');
+    const respBookings = await myFetch('/bookings', 'GET');
+
+    for (const item of respListings.listings) {
       const detailedItem = await myFetch('/listings/' + item.id, 'GET');
       if (detailedItem.listing.availability.length > 0) {
         detailedItem.listing.id = item.id;
-        tempList.push(detailedItem.listing);
-      }
-    }
-    const resp = await myFetch('/bookings', 'GET');
-    tempList.sort((a, b) => {
-      if (resp.error === undefined) {
-        for (const booking of resp.bookings) {
-          if (a.id === booking.listingId) {
-            return -1;
-          }
-          if (b.id === booking.listingId) {
-            return 1;
+        let booked = false;
+        if (respBookings.bookings) {
+          for (const booking of respBookings.bookings) {
+            if (booking.owner === email &&
+                parseInt(booking.listingId) === item.id &&
+                (booking.status === 'pending' ||
+                booking.status === 'accepted')) {
+              tempBookedList.push(detailedItem.listing);
+              booked = true;
+            }
           }
         }
-        return a.title.localeCompare(b.title);
-      } else {
-        return a.title.localeCompare(b.title);
+        !booked && tempList.push(detailedItem.listing);
+        booked = false;
       }
-    })
+    }
+    tempList.sort(sortListings);
+    tempBookedList.sort(sortListings);
     setListings(tempList);
-    setCopyListing(tempList);
+    setBookedListings(tempBookedList);
   }, []);
 
-  const handleChange = (event) => {
-    const regex = new RegExp(event.target.value);
-    const newList = [];
-    if (event.target.value === '') {
-      setListings(copyListing);
-      return;
-    }
-    for (const item of copyListing) {
-      if (regex.test(item.title) || regex.test(item.address.city)) {
-        newList.push(item);
-      }
-    }
-    setListings(newList);
+  const sortListings = (a, b) => {
+    return a.title.localeCompare(b.title);
   }
 
   return (
     <Container>
       <TopBanner text="AirBrb"/>
       <Content direction='column'>
-        <TextField label="Search" onChange={handleChange} variant="standard" />
-        { sortedListings.map((item, idx) => {
+        { alert && <MyAlert title={ alert.title } severity={ alert.severity } text={ alert.text }></MyAlert> }
+        <Button variant='contained' onClick={ () => { setOpenSearch(!openSearch) } }>Search/Filter/Sort</Button>
+        { openSearch && <FilterSortSection
+                          bookedListings={ bookedListings }
+                          setBookedListings={ setBookedListings }
+                          listings={ listings }
+                          setListings={ setListings }
+                          setAlert={ setAlert }
+                        /> }
+        { bookedListings && bookedListings.length > 0 && <Typography>Listings Booked: </Typography> }
+        { bookedListings && bookedListings.map((item, idx) => {
+          return (<ListingCard
+            item={ item }
+            variant='normal'
+            key={idx}/>);
+        })}
+        <Typography>Listings: </Typography>
+        { listings && listings.map((item, idx) => {
           return (<ListingCard
             item={ item }
             variant='normal'

@@ -3,7 +3,7 @@ import { TopBanner, Container, NavBar, Content, ListingCarousel, CarouselImage, 
 import { Typography, Button, Alert, Snackbar } from '@mui/material';
 import { useLocation, useParams } from 'react-router-dom'
 import defaultHousePic from '../images/defaulthouse.png'
-import { myFetch } from './functions';
+import { myFetch, daysBetween } from './functions';
 import ReviewSection from './reviewsection';
 
 const ListingView = () => {
@@ -15,6 +15,7 @@ const ListingView = () => {
   const [endDate, setEndDate] = React.useState(listing.availability[1]);
   const [booking, setBooking] = React.useState();
   const [alertOpen, setAlertOpen] = React.useState(false);
+  const [reviews, setReviews] = React.useState([]);
 
   React.useEffect(() => {
     calculatePrice();
@@ -29,25 +30,25 @@ const ListingView = () => {
       return;
     }
     for (const item of resp.bookings) {
-      if (item.listingId === id) {
+      if (item.listingId === id && item.owner === window.localStorage.getItem('email')) {
         setBooking(item);
       }
     }
   }, [alertOpen]);
 
-  const msToDays = (num) => {
-    return num / 1000 / 60 / 60 / 24;
-  }
+  React.useEffect(() => {
+    setReviews(listing.reviews);
+  }, []);
 
   const calculatePrice = () => {
-    const days = msToDays(Date.parse(endDate) - Date.parse(startDate));
+    const days = daysBetween(Date.parse(startDate), Date.parse(endDate));
     days > 0 ? setPrice('$' + days * listing.price) : setPrice('N/A')
   }
 
   const handleBook = async () => {
     const resp = await myFetch('/bookings/new/' + id, 'POST', {
       dateRange: { startDate: startDate, endDate: endDate },
-      totalPrice: price
+      totalPrice: parseInt(price.substring(1))
     }, id)
     resp.error === undefined ? setAlertOpen(true) : console.log(resp.error);
   }
@@ -126,7 +127,7 @@ const ListingView = () => {
             <Button variant='contained' disabled>Book</Button></>) }
 
         <Line />
-        <ReviewSection listingId={ id } booking={ booking } />
+        <ReviewSection reviews={ reviews } setReviews={ setReviews } listingId={ id } booking={ booking } />
         {/* Transient alert pop up */}
         <Snackbar open={ alertOpen } autoHideDuration={1500} onClose={closeAlert} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}><Alert severity='success'>Request sent successfully</Alert></Snackbar>
       </Content>

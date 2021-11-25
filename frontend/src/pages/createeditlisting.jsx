@@ -1,17 +1,11 @@
 import React from 'react';
-import { TopBanner, Form, Container, NavBar, Content } from './components';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import InputLabel from '@mui/material/InputLabel';
-import Alert from '@mui/material/Alert';
+import { TopBanner, Form, Container, NavBar, Content, MyAlert } from './components';
+import { TextField, Button, Select, MenuItem, InputLabel } from '@mui/material';
 import PropTypes from 'prop-types'
-import { useParams } from 'react-router-dom'
-import { myFetch } from './functions';
+import { useParams, useNavigate } from 'react-router-dom'
+import { myFetch, isNumber } from './functions';
 
 const CreateEditListing = ({ mode }) => {
-  const [submittable, setSubmittable] = React.useState(true);
   const [bedrooms, setBedrooms] = React.useState([]);
   const [type, setType] = React.useState('House');
   const [selectedFile, setSelectedFile] = React.useState();
@@ -21,17 +15,18 @@ const CreateEditListing = ({ mode }) => {
   const [street, setStreet] = React.useState();
   const [price, setPrice] = React.useState();
   const [bathrooms, setBathrooms] = React.useState();
+  const [alert, setAlert] = React.useState();
 
+  const navigate = useNavigate();
   const { id } = useParams()
 
   const numCheck = (event) => {
-    const regex = /^[0-9]+$/;
-    if (regex.test(event.target.value)) {
-      setSubmittable(true);
+    if (isNumber(event.target.value)) {
+      setAlert();
       updateValues(event);
       return true;
     } else {
-      setSubmittable(false);
+      setAlert({ title: 'Error', text: 'Only numbers can be added to this field', severity: 'error' });
       return false;
     }
   }
@@ -45,15 +40,16 @@ const CreateEditListing = ({ mode }) => {
   }
 
   const addBeds = (event) => {
-    setBedrooms([]);
-    if (numCheck(event)) {
-      const numBedrooms = parseInt(event.target.value);
-      const newBedrooms = [...bedrooms];
-      for (let i = 0; i < numBedrooms; i++) {
-        newBedrooms.push('');
-      }
-      setBedrooms(newBedrooms);
+    if (!numCheck(event)) {
+      setBedrooms([]);
+      return;
     }
+    const numBedrooms = parseInt(event.target.value);
+    const newBedrooms = [];
+    for (let i = 0; i < numBedrooms; i++) {
+      newBedrooms.push('');
+    }
+    setBedrooms(newBedrooms);
   }
 
   const setBeds = (event) => {
@@ -98,7 +94,12 @@ const CreateEditListing = ({ mode }) => {
         }
       }
       const response = await myFetch('/listings/new', 'POST', body);
-      response.error === undefined ? alert('Successfully created your listing') : alert(response.error);
+      if (response.error === undefined) {
+        setAlert({ title: 'Success', severity: 'success', text: 'Successfully created your listing... redirecting' })
+        setTimeout(() => { navigate('/yourlistings') }, 1500);
+      } else {
+        setAlert({ title: 'Error', severity: 'error', text: response.error })
+      }
     } else {
       const imageArray = [];
       if (selectedImages !== undefined) {
@@ -122,20 +123,26 @@ const CreateEditListing = ({ mode }) => {
         }
       }
       const response = await myFetch('/listings/' + id, 'PUT', body);
-      response.error === undefined ? alert('Successfully edited your listing') : alert(response.error);
+      if (response.error === undefined) {
+        setAlert({ title: 'Success', severity: 'success', text: 'Successfully edited your listing... redirecting' })
+        setTimeout(() => { navigate('/yourlistings') }, 1500);
+      } else {
+        setAlert({ title: 'Error', severity: 'error', text: response.error })
+      }
     }
   }
 
   return (
     <Container>
       { mode === 'new' ? <TopBanner text="New Listing"/> : <TopBanner text="Edit Listing"/> }
-      <Content>
+      <Content direction='column'>
+      { alert && <MyAlert title={ alert.title } severity={ alert.severity } text={ alert.text }></MyAlert> }
         <Form>
           <TextField label="Title" onChange={ e => { setTitle(e.target.value) }} variant="standard" />
           <TextField label="Street" onChange={ e => { setStreet(e.target.value) }} variant="standard" />
           <TextField label="City" onChange={ e => { setCity(e.target.value) }} variant="standard" />
           <InputLabel>Type</InputLabel>
-          <Select id="type" defaultValue="house" onChange={ (event) => { setType(event.target.value) } }>
+          <Select id="type" defaultValue="House" onChange={ (event) => { setType(event.target.value) } }>
             <MenuItem value='House'>House</MenuItem>
             <MenuItem value='Apartment'>Apartment</MenuItem>
             <MenuItem value='Hotel'>Hotel</MenuItem>
@@ -145,13 +152,13 @@ const CreateEditListing = ({ mode }) => {
           <TextField label="Number of bedrooms" id="bedrooms" onChange={addBeds} variant="standard" />
           { bedrooms.map((bedroom, idx) => {
             idx += 1;
-            return (<input type="text" placeholder={'Number of beds in room ' + idx} onChange={setBeds} variant="standard" key={idx} idx={idx}/>);
+            return (<input type="text" placeholder={'Number of beds in room ' + idx} onChange={setBeds} idx={ idx } variant="standard" key={idx} />);
           })}
           <TextField label="Amenities" id="amenities" variant="standard" />
           <br/><InputLabel>Upload thumbnail:</InputLabel>
           <input id="imageUpload" type="file" onChange={(event) => setSelectedFile(event.target.files[0])}/><p/>
           { mode === 'edit' ? <><InputLabel>Upload additional pics:</InputLabel><input id="imageUpload" type="file" multiple onChange={(event) => setSelectedImages(event.target.files)}/><p/></> : <></>}
-          { submittable ? <Button variant="filled" onClick={createListing}>Submit</Button> : <div><Alert severity="error">Invalid input, try again</Alert><Button variant="filled" disabled>Submit</Button></div>}
+          { !alert ? <Button variant="filled" onClick={createListing}>Submit</Button> : <Button variant="filled" disabled>Submit</Button> }
         </Form>
       </Content>
       <NavBar/>

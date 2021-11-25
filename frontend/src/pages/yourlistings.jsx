@@ -1,20 +1,19 @@
 import React from 'react';
-import { TopBanner, Container, NavBar, Content, ListingCard } from './components';
+import { TopBanner, Container, NavBar, Content, ListingCard, MyAlert } from './components';
 import {
   Link,
 } from 'react-router-dom';
-import { BACKEND_PORT } from '../config';
+import { Button } from '@mui/material';
+import { myFetch } from './functions';
 
 const YourListingsPage = () => {
   const [listings, setListings] = React.useState([]);
-  const header = {
-    headers: { 'Content-Type': 'application/json' }
-  }
+  const [alert, setAlert] = React.useState();
+
   React.useEffect(async () => {
-    const response = await fetch('http://localhost:' + BACKEND_PORT + '/listings', header);
-    const json = await response.json();
-    filterListings(json.listings);
-  }, []);
+    const resp = await myFetch('/listings', 'GET');
+    filterListings(resp.listings);
+  }, [alert]);
 
   async function filterListings (array) {
     const owner = window.localStorage.getItem('email');
@@ -26,10 +25,9 @@ const YourListingsPage = () => {
     }
     const list2 = [];
     for (const id of list) {
-      const response = await fetch('http://localhost:' + BACKEND_PORT + '/listings/' + id, header);
-      const json = await response.json();
-      json.listing.id = id;
-      list2.push(json.listing);
+      const response = await myFetch('/listings/' + id, 'GET');
+      response.listing.id = id;
+      list2.push(response.listing);
     }
     setListings(list2);
   }
@@ -38,11 +36,14 @@ const YourListingsPage = () => {
     <Container>
       <TopBanner text='Your Listings'/>
       <Content direction='column'>
-      <Link to='/newlisting'>Add new listing</Link>
-      { listings.map((item, idx) => {
+      { alert && <MyAlert title={ alert.title } severity={ alert.severity } text={ alert.text }></MyAlert> }
+      <p/>
+      <Link to='/newlisting'><Button variant='contained'>Add new listing</Button></Link>
+      { listings && listings.map((item, idx) => {
         return (<ListingCard
                   item={ item }
                   variant='owner'
+                  setAlert={ setAlert }
                   key={idx}/>);
       })}
       </Content>

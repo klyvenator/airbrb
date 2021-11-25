@@ -1,14 +1,25 @@
 import React from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types'
-import { Card, CardContent, Typography, Button, TextField, Rating } from '@mui/material';
+import {
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  TextField,
+  Rating,
+  AlertTitle,
+  Alert,
+  CardMedia,
+  CardActions
+} from '@mui/material';
 import defaultHousePic from '../images/defaulthouse.png'
 import {
   Link,
   useNavigate,
 } from 'react-router-dom';
 import Carousel from 'react-material-ui-carousel';
-import { myFetch } from './functions';
+import { avgReview, myFetch } from './functions';
 
 export const CarouselImage = styled.img`
   height: 250px;
@@ -26,6 +37,9 @@ const BannerDiv = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  position: fixed;
+  width: 100vw;
+  z-index: 100;
 `
 export const TopBanner = ({ text }) => {
   return <BannerDiv><h1>{ text }</h1></BannerDiv>;
@@ -38,21 +52,31 @@ const FooterDiv = styled.div`
   height: 30px;
   background-color: #23395B;
   color: #CBF7ED;
-  position: relative;
+  position: fixed;
+  top: calc(100vh - 30px);
+  width: 100vw;
   display: flex;
   justify-content: center;
   align-items: center;
-  justify-self: flex-end;
-  margin-top: 20px;
+  z-index: 100;
   `
 export const NavBar = () => {
+  const logout = async () => {
+    const resp = await myFetch('/user/auth/logout', 'POST');
+    if (resp.error === undefined) {
+      window.localStorage.removeItem('token');
+      window.localStorage.removeItem('email');
+    } else {
+      alert(resp.error);
+    }
+  }
   return (
     <FooterDiv>{window.localStorage.getItem('token') === null
-      ? (<div><Link to="/">Home</Link>&nbsp;
-        <Link to="/login">Login</Link>&nbsp;
+      ? (<div><Link to="/">Home</Link>&nbsp;|&nbsp;
+        <Link to="/login">Login</Link>&nbsp;|&nbsp;
         <Link to="/register">Register</Link></div>)
-      : (<div><Link to="/">Home</Link>&nbsp;
-        <Link to="/logout">Logout</Link>&nbsp;
+      : (<div><Link to="/">Home</Link>&nbsp;|&nbsp;
+        <Link to='/' onClick={ logout }>Logout</Link>&nbsp;|&nbsp;
         <Link to="/yourlistings">Your Listings</Link></div>)}
     </FooterDiv>
   )
@@ -61,10 +85,11 @@ export const NavBar = () => {
 export const Form = styled.form`
   display: flex;
   flex-direction: column;
-  align-self: flex-start;
-  justify-self: center;
+  align-self: center;
+  justify-self: flex-start;
   justify-content: center;
-  margin-top: 10px;
+  width: 320px;
+  margin-top: 20px;
 `
 export const Container = styled.div`
   display: flex;
@@ -75,16 +100,14 @@ export const Container = styled.div`
 `
 export const Content = styled.div`
   display: flex;
-  min-height: calc(100vh - 60px);
+  min-height: calc(100vh - 200px);
   justify-content: ${props => props.direction === 'column' ? 'flex-start' : 'center'};
   align-items: ${props => props.direction === 'column' ? 'center' : 'flex-start'};
   flex-direction: ${props => props.direction};
+  padding-bottom: 80px;
+  padding-top: 40px;
 `
 
-const Thumbnail = styled.img`
-  width: 150px;
-  height: 100px;
-`
 const ClickableCard = styled(Card)`
   &:hover {
     background-color: #CBF7ED;
@@ -92,7 +115,7 @@ const ClickableCard = styled(Card)`
   }
 `
 
-export const ListingCard = ({ item, variant }) => {
+export const ListingCard = ({ item, variant, setAlert }) => {
   const id = item.id.toString();
   const navigate = useNavigate();
   let numBeds = 0;
@@ -100,17 +123,33 @@ export const ListingCard = ({ item, variant }) => {
     numBeds += parseInt(i);
   }
   const cardFunctions = () => {
-    let returnValue;
+    let returnValue = <></>;
     if (variant === 'owner' && item.availability.length === 0) {
-      returnValue = <><Button onClick={ (e) => { e.stopPropagation(); navigate('/listing/edit/' + id) } }>Edit</Button>
-      <Button onClick={ (e) => { e.stopPropagation(); navigate('/listing/publish/' + id.toString()) } }>Publish</Button></>;
+      returnValue =
+      <>
+        <Button onClick={ (e) => { e.stopPropagation(); navigate('/listing/edit/' + id) } }>Edit</Button>
+        <Button onClick={ (e) => { e.stopPropagation(); navigate('/listing/publish/' + id.toString()) } }>Publish</Button>
+        <Button onClick={ handleDelete }>Delete</Button>
+      </>;
     } else if (variant === 'owner') {
-      returnValue = <><Button onClick={ (e) => { e.stopPropagation(); navigate('/listing/edit/' + id) } }>Edit</Button>
-      <Button onClick={ (e) => { e.stopPropagation(); navigate('/listing/unpublish/' + id.toString()) } }>Unpublish</Button></>;
-    } else {
-      returnValue = <></>;
+      returnValue =
+      <>
+        <Button onClick={ (e) => { e.stopPropagation(); navigate('/listing/edit/' + id) } }>Edit</Button>
+        <Button onClick={ (e) => { e.stopPropagation(); navigate('/listing/unpublish/' + id.toString()) } }>Unpublish</Button>
+        <Button onClick={ handleDelete }>Delete</Button>
+      </>;
     }
     return returnValue;
+  }
+
+  const handleDelete = async (e) => {
+    e.stopPropagation();
+    const resp = await myFetch('/listings/' + id, 'DELETE');
+    if (resp.error !== undefined) {
+      setAlert({ title: 'Error', severity: 'error', text: resp.error });
+    } else {
+      setAlert({ title: 'Success', severity: 'success', text: 'Listing successfully deleted' });
+    }
   }
 
   const handleCardClick = () => {
@@ -122,27 +161,36 @@ export const ListingCard = ({ item, variant }) => {
   }
 
   return (
-    <ClickableCard onClick={ handleCardClick } sx={{ minWidth: 400, display: 'flex', flexDirection: 'row', marginTop: '10px' }}>
-      <CardContent sx={{ display: 'flex', flexDirection: 'column' }}>
-        <Thumbnail src={ item.thumbnail === 'default' ? defaultHousePic : item.thumbnail }/>
+    <ClickableCard onClick={ handleCardClick } sx={{ width: '90%', marginTop: '15px' }}>
+      <CardMedia
+        component='img'
+        height='200px'
+        image={ item.thumbnail === 'default' ? defaultHousePic : item.thumbnail }
+        alt='property image'
+      />
+      <Typography variant='h5' sx={{ marginLeft: '22px', marginTop: '10px' }}>{ item.title }</Typography>
+      <CardContent sx={{ display: 'flex', flexDirection: 'row', paddingTop: '0', paddingBottom: '0' }}>
+        <CardContent>
+          <Typography>Type: { item.metadata.type } </Typography>
+          <Typography>Beds: { numBeds } </Typography>
+          <Typography>Bathrooms: { item.metadata.bathrooms }</Typography>
+          <Typography>Price: ${ item.price } / pn</Typography>
+        </CardContent>
+        <CardContent>
+          <Typography>Rating:<br/><Rating value={ avgReview(item.reviews) } readOnly /></Typography>
+          <Typography>Total reviews: { item.reviews.length }</Typography>
+        </CardContent>
+      </CardContent>
+      <CardActions sx={{ paddingTop: '0' }}>
         { cardFunctions() }
-      </CardContent>
-      <CardContent>
-        <Typography>{ item.title }</Typography>
-        <Typography>Type: { item.metadata.type } </Typography>
-        <Typography>Beds: { numBeds } </Typography>
-        <Typography>Bathrooms: { item.metadata.bathrooms }</Typography>
-        <Typography>Rating: { item.rating }</Typography>
-        <Typography>Total reviews: { item.reviewNums }</Typography>
-        <Typography>Price: { item.price }</Typography>
-        { item.availability.length > 0 ? <Typography>Available from: { item.availability[0] } to { item.availability[1] } </Typography> : <></> }
-      </CardContent>
+      </CardActions>
     </ClickableCard>
   )
 }
 ListingCard.propTypes = {
   item: PropTypes.object,
-  variant: PropTypes.string
+  variant: PropTypes.string,
+  setAlert: PropTypes.any
 }
 
 export const TextArea = ({ onChange }) => {
@@ -213,4 +261,18 @@ BookingCard.propTypes = {
   booking: PropTypes.object,
   reload: PropTypes.function,
   daysBooked: PropTypes.number
+}
+
+export const MyAlert = ({ severity, title, text }) => {
+  return (
+    <Alert severity={ severity } variant='filled' sx={{ width: '70%', marginTop: '10px', border: '2px dashed white' }}>
+      <AlertTitle>{ title }</AlertTitle>
+      { text }
+    </Alert>
+  )
+}
+MyAlert.propTypes = {
+  severity: PropTypes.string,
+  title: PropTypes.string,
+  text: PropTypes.string
 }
