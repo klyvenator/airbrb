@@ -32,15 +32,13 @@ const MyLink = styled.a`
   }
 `
 
-const FilterSortSection = ({ setListings, listings, bookedListings, setBookedListings, setAlert }) => {
+const FilterSortSection = ({ setListings, listings, bookedListings, setBookedListings, setAlert, setStartDate, setEndDate, startDate, endDate }) => {
   const [search, setSearch] = React.useState();
   const [copyListing, setCopyListing] = React.useState();
   const [bookedCopy, setBookedCopy] = React.useState();
   const [numBeds, setNumBeds] = React.useState([0, 20]);
   const [minPrice, setMinPrice] = React.useState(Number.MIN_SAFE_INTEGER);
   const [maxPrice, setMaxPrice] = React.useState(Number.MAX_SAFE_INTEGER);
-  const [startDate, setStartDate] = React.useState();
-  const [endDate, setEndDate] = React.useState();
   const [sortRatings, setSortRatings] = React.useState();
 
   React.useState(() => {
@@ -212,7 +210,11 @@ FilterSortSection.propTypes = {
   setListings: PropTypes.function,
   bookedListings: PropTypes.array,
   setBookedListings: PropTypes.function,
-  setAlert: PropTypes.function
+  setAlert: PropTypes.function,
+  setStartDate: PropTypes.function,
+  setEndDate: PropTypes.function,
+  startDate: PropTypes.string,
+  endDate: PropTypes.string
 }
 
 export default FilterSortSection;

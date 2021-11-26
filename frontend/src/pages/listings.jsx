@@ -9,6 +9,8 @@ const ListingsPage = () => {
   const [alert, setAlert] = React.useState();
   const [openSearch, setOpenSearch] = React.useState(false);
   const [bookedListings, setBookedListings] = React.useState();
+  const [startDate, setStartDate] = React.useState();
+  const [endDate, setEndDate] = React.useState();
   const email = window.localStorage.getItem('email');
 
   React.useEffect(async () => {
@@ -60,12 +62,18 @@ const ListingsPage = () => {
                           listings={ listings }
                           setListings={ setListings }
                           setAlert={ setAlert }
+                          setStartDate={ setStartDate }
+                          setEndDate={ setEndDate }
+                          startDate={ startDate }
+                          endDate={ endDate }
                         /> }
         { bookedListings && bookedListings.length > 0 && <Typography>Listings Booked: </Typography> }
         { bookedListings && bookedListings.map((item, idx) => {
           return (<ListingCard
             item={ item }
             variant='normal'
+            startDate={ startDate }
+            endDate={ endDate }
             key={idx}/>);
         })}
         <Typography>Listings: </Typography>
@@ -73,6 +81,8 @@ const ListingsPage = () => {
           return (<ListingCard
             item={ item }
             variant='normal'
+            startDate={ startDate }
+            endDate={ endDate }
             key={idx}/>);
         })}
       </Content>

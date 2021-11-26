@@ -30,7 +30,7 @@ export const ListingCarousel = styled(Carousel)`
   width: 350px;
 `
 
-const BannerDiv = styled.div`
+const BannerDiv = styled.header`
   height: 30px;
   background-color: #23395B;
   color: #CBF7ED;
@@ -48,7 +48,7 @@ TopBanner.propTypes = {
   text: PropTypes.string
 }
 
-const FooterDiv = styled.div`
+const FooterDiv = styled.nav`
   height: 30px;
   background-color: #23395B;
   color: #CBF7ED;
@@ -115,7 +115,7 @@ const ClickableCard = styled(Card)`
   }
 `
 
-export const ListingCard = ({ item, variant, setAlert }) => {
+export const ListingCard = ({ item, variant, setAlert, startDate, endDate }) => {
   const id = item.id.toString();
   const navigate = useNavigate();
   let numBeds = 0;
@@ -156,7 +156,11 @@ export const ListingCard = ({ item, variant, setAlert }) => {
     if (variant === 'owner') {
       navigate('/listing/bookings/' + id, { state: item });
     } else {
-      navigate('/listing/' + id, { state: item });
+      if (startDate !== undefined) {
+        navigate('/listing/' + id, { state: item, startDate: startDate, endDate: endDate });
+      } else {
+        navigate('/listing/' + id, { state: item });
+      }
     }
   }
 
@@ -190,7 +194,9 @@ export const ListingCard = ({ item, variant, setAlert }) => {
 ListingCard.propTypes = {
   item: PropTypes.object,
   variant: PropTypes.string,
-  setAlert: PropTypes.any
+  setAlert: PropTypes.function,
+  startDate: PropTypes.string,
+  endDate: PropTypes.string
 }
 
 export const TextArea = ({ onChange }) => {
@@ -263,7 +269,7 @@ BookingCard.propTypes = {
   daysBooked: PropTypes.number
 }
 
-export const MyAlert = ({ severity, title, text }) => {
+export const MyAlert = ({ severity = 'error', title = 'error', text = 'error message here' }) => {
   return (
     <Alert severity={ severity } variant='filled' sx={{ width: '70%', marginTop: '10px', border: '2px dashed white' }}>
       <AlertTitle>{ title }</AlertTitle>
@@ -276,3 +282,8 @@ MyAlert.propTypes = {
   title: PropTypes.string,
   text: PropTypes.string
 }
+
+export const MyButton = styled.button`
+  min-width: 200px;
+  border: 1px solid black;
+`
